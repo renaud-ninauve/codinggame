@@ -22,4 +22,12 @@ public class Link {
     public int hashCode() {
         return Objects.hash(node1, node2);
     }
+
+    @Override
+    public String toString() {
+        return "Link{" +
+                "node1=" + node1 +
+                ", node2=" + node2 +
+                '}';
+    }
 }

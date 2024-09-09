@@ -12,7 +12,13 @@ public class Player2 {
         ShortestPath shortestPath = new ShortestPath();
         shortestPathToGateway(shortestPath, bobnet, List.of(virusPosition));
 
-        return shortestPath.found() ? Optional.of(new Link(shortestPath.value.get(0), shortestPath.value.get(1))) : Optional.empty();
+        if (!shortestPath.found()) {
+            return Optional.empty();
+        }
+        List<Integer> shortestValue = shortestPath.value;
+        Integer node1 = shortestValue.get(shortestValue.size() - 2);
+        Integer node2 = shortestValue.get(shortestValue.size() - 1);
+        return Optional.of(new Link(node1, node2));
     }
 
     private void shortestPathToGateway(ShortestPath shortestPath, BobNet bobNet, List<Integer> currentPath) {
