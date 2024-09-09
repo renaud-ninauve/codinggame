@@ -22,7 +22,7 @@ public class Player2 {
     }
 
     private void shortestPathToGateway(ShortestPath shortestPath, BobNet bobNet, List<Integer> currentPath) {
-        if (shortestPath.found() && currentPath.size() >= shortestPath.size()) {
+        if (shortestPath.found() && shortest(bobNet, currentPath, shortestPath.value) != currentPath) {
             return;
         }
         final Integer currentPosition = currentPath.get(currentPath.size() - 1);
@@ -42,6 +42,21 @@ public class Player2 {
             shortestPathToGateway(shortestPath, bobNet, newPath);
         }
     }
+
+    private List<Integer> shortest(BobNet bobNet, List<Integer> path1, List<Integer> path2) {
+        if (path1.size() < path2.size()) {
+            return path1;
+        }
+        if (path2.size() < path1.size()) {
+            return path2;
+        }
+        Integer node1 = path1.get(path1.size() - 2);
+        int nbGateway1 = bobNet.countGatewaysLinkedTo(node1);
+        Integer node2 = path1.get(path1.size() - 2);
+        int nbGateway2 = bobNet.countGatewaysLinkedTo(node2);
+        return nbGateway1 >= nbGateway2 ? path1 : path2;
+    }
+
 
     private static class ShortestPath {
         private List<Integer> value;

@@ -22,6 +22,12 @@ public class BobNet {
         return links.getOrDefault(node, List.of());
     }
 
+    public int countGatewaysLinkedTo(int node) {
+        return (int) findNodesLinkedTo(node).stream()
+                .filter(this::isGateway)
+                .count();
+    }
+
     public boolean isGateway(int node) {
         return gateways.contains(node);
     }
