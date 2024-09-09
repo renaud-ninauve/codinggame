@@ -32,6 +32,11 @@ public class BobNet {
         return gateways.contains(node);
     }
 
+    public void removeLink(Link link) {
+        links.get(link.node1).remove(Integer.valueOf(link.node2));
+        links.get(link.node2).remove(Integer.valueOf(link.node1));
+    }
+
     public static class BobNetBuilder {
         private final Map<Integer, List<Integer>> links = new HashMap<>();
         private final List<Integer> gateways = new ArrayList<>();
@@ -52,11 +57,6 @@ public class BobNet {
                 links.put(node1, new ArrayList<>());
             }
             links.get(node1).add(node2);
-        }
-
-        public void removeLink(Link link) {
-            links.get(link.node1).remove(Integer.valueOf(link.node2));
-            links.get(link.node2).remove(Integer.valueOf(link.node1));
         }
 
         public BobNet build() {

@@ -88,4 +88,37 @@ public class Player2Test {
         final Optional<Link> actual = player2.nextLinkToSever(bobnet, virusPosition);
         assertThat(actual.get()).isEqualTo(new Link(41, gateway2));
     }
+
+    @Test
+    void cut_shortest_link_to_more_gateways2() {
+        final int gateway = 999;
+        final int gateway2 = 9999;
+
+        final BobNet bobnet = BobNet.with()
+                .linkBetween(1, 2)
+                .linkBetween(2, 21)
+                .linkBetween(21, 22)
+                .linkBetween(22, gateway)
+
+                .linkBetween(1, 3)
+                .linkBetween(3, 31)
+                .linkBetween(31, gateway)
+                .linkBetween(31, gateway2)
+
+                .linkBetween(3, 301)
+
+                .linkBetween(1, 4)
+                .linkBetween(4, 41)
+                .linkBetween(41, gateway)
+
+                .gatewayAt(gateway)
+                .gatewayAt(gateway2)
+                .build();
+
+        final int virusPosition = 1;
+        final Player2 player2 = new Player2();
+
+        final Optional<Link> actual = player2.nextLinkToSever(bobnet, virusPosition);
+        assertThat(actual.get()).isEqualTo(new Link(31, gateway2));
+    }
 }
