@@ -1,11 +1,14 @@
 package fr.ninauve.renaud.codinggame.deathsearchfirst.episode1;
 
 import java.util.Optional;
+
+import fr.ninauve.renaud.codinggame.deathsearchfirst.BobNet;
+import fr.ninauve.renaud.codinggame.deathsearchfirst.Link;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GameTest {
+public class Player1Test {
 
     @Test
     void cut_unique_link_to_gateway() {
@@ -15,9 +18,9 @@ public class GameTest {
                 .build();
 
         final int virusPosition = 1;
-        final Player player = new Player();
+        final Player1 player1 = new Player1();
 
-        final Optional<Link> actual = player.nextLinkToSever(bobnet, virusPosition);
+        final Optional<Link> actual = player1.nextLinkToSever(bobnet, virusPosition);
         assertThat(actual.get()).isEqualTo(new Link(1, 2));
     }
 
@@ -46,9 +49,9 @@ public class GameTest {
                 .build();
 
         final int virusPosition = 1;
-        final Player player = new Player();
+        final Player1 player1 = new Player1();
 
-        final Optional<Link> actual = player.nextLinkToSever(bobnet, virusPosition);
+        final Optional<Link> actual = player1.nextLinkToSever(bobnet, virusPosition);
         assertThat(actual.get()).isEqualTo(new Link(1, 3));
     }
 }

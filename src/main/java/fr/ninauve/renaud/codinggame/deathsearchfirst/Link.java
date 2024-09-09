@@ -1,10 +1,10 @@
-package fr.ninauve.renaud.codinggame.deathsearchfirst.episode1;
+package fr.ninauve.renaud.codinggame.deathsearchfirst;
 
 import java.util.Objects;
 
 public class Link {
-    private final int node1;
-    private final int node2;
+    public final int node1;
+    public final int node2;
 
     public Link(int node1, int node2) {
         this.node1 = Math.min(node1, node2);

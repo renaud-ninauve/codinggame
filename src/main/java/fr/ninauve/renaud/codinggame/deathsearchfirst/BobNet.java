@@ -1,4 +1,4 @@
-package fr.ninauve.renaud.codinggame.deathsearchfirst.episode1;
+package fr.ninauve.renaud.codinggame.deathsearchfirst;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +46,11 @@ public class BobNet {
                 links.put(node1, new ArrayList<>());
             }
             links.get(node1).add(node2);
+        }
+
+        public void removeLink(Link link) {
+            links.get(link.node1).remove(Integer.valueOf(link.node2));
+            links.get(link.node2).remove(Integer.valueOf(link.node1));
         }
 
         public BobNet build() {

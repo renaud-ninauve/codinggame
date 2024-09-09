@@ -1,10 +1,13 @@
 package fr.ninauve.renaud.codinggame.deathsearchfirst.episode1;
 
+import fr.ninauve.renaud.codinggame.deathsearchfirst.BobNet;
+import fr.ninauve.renaud.codinggame.deathsearchfirst.Link;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class Player {
+public class Player1 {
     public Optional<Link> nextLinkToSever(BobNet bobnet, int virusPosition) {
         ShortestPath shortestPath = new ShortestPath();
         shortestPathToGateway(shortestPath, bobnet, List.of(virusPosition));

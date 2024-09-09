@@ -1,5 +1,6 @@
 package fr.ninauve.renaud.codinggame.deathsearchfirst.episode1;
 
+import fr.ninauve.renaud.codinggame.deathsearchfirst.Link;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
