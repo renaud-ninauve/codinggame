@@ -1,5 +1,6 @@
 package fr.ninauve.renaud.codinggame.deathsearchfirst.episode1;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,8 +17,7 @@ public class GameTest {
         final int virusPosition = 1;
         final Player player = new Player();
 
-        final Link actual = player.nextLinkToSever(bobnet, virusPosition);
-        assertThat(actual).isEqualTo(new Link(1, 2));
+        final Optional<Link> actual = player.nextLinkToSever(bobnet, virusPosition);
+        assertThat(actual.get()).isEqualTo(new Link(1, 2));
     }
-
 }
