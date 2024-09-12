@@ -5,87 +5,167 @@ import fr.ninauve.renaud.codinggame.deathsearchfirst.Link;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Player2 {
     public Optional<Link> nextLinkToSever(BobNet bobnet, int virusPosition) {
-        ShortestPaths shortestPaths = new ShortestPaths();
-        shortestPathToGateway(shortestPaths, bobnet, List.of(virusPosition));
-
-        if (!shortestPaths.found()) {
+        ShortestPathFinder shortestPathFinder = new ShortestPathFinder(bobnet);
+        shortestPathFinder.find(Path.path(virusPosition));
+        ShortestPaths shortestPaths = shortestPathFinder.shortestPaths;
+        if (shortestPaths.isEmpty() || shortestPaths.shortestSize() < 2) {
             return Optional.empty();
         }
-        List<Integer> shortestValue = shortestPaths.value;
-        Integer node1 = shortestValue.get(shortestValue.size() - 2);
-        Integer node2 = shortestValue.get(shortestValue.size() - 1);
-        return Optional.of(new Link(node1, node2));
+        if (shortestPaths.shortestSize() == 2) {
+            Path shortest = shortestPaths.shortests.get(0);
+            return Optional.of(new Link(shortest.node(-2), shortest.node(-1)));
+        }
+        final List<Integer> lastNodes = shortestPaths.stream()
+                .map(path -> path.node(-2))
+                .toList();
+        final List<Integer> nearestGateways = shortestPaths.stream()
+                .map(path -> path.node(-1))
+                .toList();
+        final List<Integer> nearestDoubleNodes = bobnet.getNodesLinkedToNNodesOf(nearestGateways, 2);
+        if (!nearestDoubleNodes.isEmpty()) {
+            Integer nearestDoubleNode = nearestDoubleNodes.get(0);
+            Integer nearestGateway = bobnet.findGatewaysLinkedTo(nearestDoubleNode).stream()
+                    .filter(nearestGateways::contains)
+                    .findAny()
+                    .orElseThrow();
+            return Optional.of(new Link(nearestDoubleNode, nearestGateway));
+        }
+        final List<Integer> allDoubleNodes = bobnet.getNodesLinkedToNNodesOf(bobnet.getGateways(), 2);
+        Optional<Integer> doubleGateway = nearestGateways.stream()
+                .map(gateway -> Map.entry(gateway, bobnet.findNodesLinkedTo(gateway).stream().anyMatch(allDoubleNodes::contains)))
+                .filter(Map.Entry::getValue)
+                .map(Map.Entry::getKey)
+                .findFirst();
+        if (doubleGateway.isPresent()) {
+            return shortestPaths.shortests.stream()
+                    .filter(path -> path.node(-1) == doubleGateway.get())
+                    .map(shortest -> new Link(shortest.node(-2), shortest.node(-1)))
+                    .findFirst();
+        }
+        return Optional.of(new Link(shortestPaths.shortests.get(0).node(-2), shortestPaths.shortests.get(0).node(-1)));
     }
 
-    private static void shortestPathToGateway(ShortestPaths shortestPaths, BobNet bobNet, List<Integer> currentPath) {
-        if (shortestPaths.found() && compare(bobNet, currentPath, shortestPaths.value) > 1) {
-            return;
-        }
-        final Integer currentPosition = currentPath.get(currentPath.size() - 1);
-        if (bobNet.isGateway(currentPosition)) {
-            shortestPaths.value = shortestPaths.found()
-                ? shortest(bobNet, currentPath, shortestPaths.value)
-                : currentPath;
-            return;
+    private static class ShortestPathFinder {
+        private final BobNet bobNet;
+        private final ShortestPaths shortestPaths = new ShortestPaths();
+
+        private ShortestPathFinder(BobNet bobNet) {
+            this.bobNet = bobNet;
         }
 
-        final List<Integer> targets = bobNet.findNodesLinkedTo(currentPosition);
-        targets.sort((a, b) -> Boolean.compare(shortestPaths.pastValues.contains(b), shortestPaths.pastValues.contains(a)));
-        for (int target : targets) {
-            if (currentPath.contains(target)) {
-                continue;
+        private void find(Path currentPath) {
+            if (shortestPaths.isShorterThan(currentPath)) {
+                return;
             }
-            final List<Integer> newPath = new ArrayList<>();
-            newPath.addAll(currentPath);
-            newPath.add(target);
-            shortestPathToGateway(shortestPaths, bobNet, newPath);
+            final int currentNode = currentPath.node(-1);
+            if (bobNet.isGateway(currentNode)) {
+                shortestPaths.pathFound(currentPath);
+                return;
+            }
+
+            final List<Integer> targets = bobNet.findNodesLinkedTo(currentNode);
+            targets.sort(Comparator.comparing(shortestPaths::distanceOf));
+            for (int target : targets) {
+                if (currentPath.contains(target)) {
+                    continue;
+                }
+                find(currentPath.withNewNode(target));
+            }
         }
     }
-
-    private static List<Integer> shortest(BobNet bobNet, List<Integer> path1, List<Integer> path2) {
-        int result = compare(bobNet, path1, path2);
-        return result <= 0 ? path1 : path2;
-    }
-
-    private static int compare(BobNet bobNet, List<Integer> path1, List<Integer> path2) {
-        if (path1.size() < path2.size()) {
-            return -1;
-        }
-        if (path2.size() < path1.size()) {
-            return 1;
-        }
-        Integer node1 = path1.get(path1.size() - 2);
-        int nbGateway1 = bobNet.countGatewaysLinkedTo(node1);
-        Integer node2 = path2.get(path1.size() - 2);
-        int nbGateway2 = bobNet.countGatewaysLinkedTo(node2);
-        if (nbGateway1 > nbGateway2) {
-            return -1;
-        }
-        if (nbGateway2 > nbGateway1) {
-            return 1;
-        }
-        return 0;
-    }
-
 
     private static class ShortestPaths {
-        private List<Integer> value;
-        private Set<Integer> pastValues = new HashSet<>();
+        private final List<Path> shortests = new ArrayList<>();
+        private final Map<Integer, Integer> distances = new HashMap<>();
 
-        private boolean found() {
-            return value != null;
+        private void pathFound(Path path) {
+            updateShortestDistancesFrom(path);
+            if (isEmpty()) {
+                shortests.add(path);
+                return;
+            }
+            if (path.size() == shortestSize()) {
+                shortests.add(path);
+                return;
+            }
+            if (path.size() < shortestSize()) {
+                shortests.clear();
+                shortests.add(path);
+            }
         }
 
-        private void setValue(List<Integer> value) {
+        private void updateShortestDistancesFrom(Path path) {
+            for (int distance = 0; distance < path.size(); distance++) {
+                int node = path.node(distance);
+                distances.putIfAbsent(node, Integer.MAX_VALUE);
+                distances.put(node, Math.min(distance, distanceOf(node)));
+            }
+        }
+
+        private int distanceOf(int node) {
+            return distances.getOrDefault(node, Integer.MAX_VALUE);
+        }
+
+        private boolean isEmpty() {
+            return shortests.isEmpty();
+        }
+
+        private boolean isShorterThan(Path path) {
+            return !shortests.isEmpty()
+                    && shortests.get(0).size() < path.size();
+        }
+
+        private Stream<Path> stream() {
+            return shortests.stream();
+        }
+
+        private int shortestSize() {
+            return isEmpty() ? Integer.MAX_VALUE : shortests.get(0).size();
+        }
+    }
+
+    private static class Path implements Comparable<Path> {
+        private final List<Integer> value;
+
+        private static Path path(int startingNode) {
+            return new Path(List.of(startingNode));
+        }
+
+        private Path(List<Integer> value) {
             this.value = value;
-            this.pastValues.addAll(value);
+        }
+
+        private Path withNewNode(int newNode) {
+            final List<Integer> newPath = new ArrayList<>(value);
+            newPath.add(newNode);
+            return new Path(newPath);
         }
 
         private int size() {
             return value.size();
+        }
+
+        private int node(int index) {
+            return index >= 0 ? value.get(index) : value.get(value.size() + index);
+        }
+
+        private boolean contains(int node) {
+            return value.contains(node);
+        }
+
+        private Stream<Integer> stream() {
+            return value.stream();
+        }
+
+        @Override
+        public int compareTo(Path other) {
+            return Comparator.comparing(Path::size)
+                    .compare(this, other);
         }
     }
 }

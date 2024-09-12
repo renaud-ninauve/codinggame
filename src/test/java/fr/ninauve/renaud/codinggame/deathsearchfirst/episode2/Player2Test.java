@@ -86,7 +86,7 @@ public class Player2Test {
         final Player2 player2 = new Player2();
 
         final Optional<Link> actual = player2.nextLinkToSever(bobnet, virusPosition);
-        assertThat(actual.get()).isEqualTo(new Link(41, gateway2));
+        assertThat(actual.get()).isEqualTo(new Link(41, gateway));
     }
 
     @Test
@@ -119,6 +119,6 @@ public class Player2Test {
         final Player2 player2 = new Player2();
 
         final Optional<Link> actual = player2.nextLinkToSever(bobnet, virusPosition);
-        assertThat(actual.get()).isEqualTo(new Link(31, gateway2));
+        assertThat(actual.get()).isEqualTo(new Link(31, gateway));
     }
 }

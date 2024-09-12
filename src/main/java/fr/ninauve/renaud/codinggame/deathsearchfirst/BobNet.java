@@ -1,9 +1,8 @@
 package fr.ninauve.renaud.codinggame.deathsearchfirst;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class BobNet {
     private final Map<Integer, List<Integer>> links;
@@ -22,6 +21,12 @@ public class BobNet {
         return links.getOrDefault(node, new ArrayList<>());
     }
 
+    public List<Integer> findGatewaysLinkedTo(int node) {
+        return findNodesLinkedTo(node).stream()
+                .filter(this::isGateway)
+                .toList();
+    }
+
     public int countGatewaysLinkedTo(int node) {
         return (int) findNodesLinkedTo(node).stream()
                 .filter(this::isGateway)
@@ -29,8 +34,33 @@ public class BobNet {
                 .count();
     }
 
+    public List<Integer> getNodesLinkedToNNodesOf(List<Integer> nodes, long count) {
+        final Set<Integer> distinctNodes = new HashSet<>(nodes);
+        final Map<Integer, Long> gatewaysPerNode = distinctNodes.stream()
+                .map(gateway -> links.getOrDefault(gateway, List.of()))
+                .flatMap(List::stream)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Map<Long, List<Integer>> nodesByCount = gatewaysPerNode.entrySet()
+                .stream()
+                .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+        return nodesByCount
+                .getOrDefault(count, List.of());
+    }
+
+    public List<Integer> getGatewaysLinkedTo(List<Integer> nodes) {
+        return nodes.stream()
+                .map(this::findNodesLinkedTo)
+                .flatMap(List::stream)
+                .filter(this::isGateway)
+                .toList();
+    }
+
     public boolean isGateway(int node) {
         return gateways.contains(node);
+    }
+
+    public List<Integer> getGateways() {
+        return gateways;
     }
 
     public void removeLink(Link link) {
