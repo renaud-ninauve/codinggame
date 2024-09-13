@@ -20,7 +20,6 @@ public class ShortestPathVisitorTest {
 
     static class ShortestPathVisitor implements Node.Visitor {
         private final Node destination;
-        private final List<Node> visited = new ArrayList<>();
         private Path shortest;
         private Path currentPath;
 
@@ -30,7 +29,6 @@ public class ShortestPathVisitorTest {
 
         @Override
         public boolean start(Node node) {
-            visited.add(node);
             if (currentPath == null) {
                 currentPath = new Path(List.of());
             }
