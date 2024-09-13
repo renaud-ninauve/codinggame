@@ -50,19 +50,30 @@ class NodeTest {
     }
 
     static class NodeListVisitor implements Node.Visitor {
-        private final List<Node> nodes = new ArrayList<>();
+        private final List<Node> visited = new ArrayList<>();
+        private final List<String> history = new ArrayList<>();
 
         @Override
-        public boolean visit(Node node) {
-            if (nodes.contains(node)) {
+        public boolean start(Node node) {
+            if (visited.contains(node)) {
                 return false;
             }
-            nodes.add(node);
+            visited.add(node);
+            history.add("START " + node.value());
             return true;
         }
 
-        public List<Node> getNodes() {
-            return nodes;
+        @Override
+        public void end(Node node) {
+            history.add("END " + node.value());
+        }
+
+        List<Node> getNodes() {
+            return visited;
+        }
+
+        List<String> getHistory() {
+            return history;
         }
     }
 
@@ -80,11 +91,23 @@ class NodeTest {
         NodeListVisitor nodeVisitor = new NodeListVisitor();
         node1.visitDepthFirst(nodeVisitor, Comparator.comparing(Node::value));
 
-        List<Integer> actual = nodeVisitor.getNodes().stream()
-                .map(Node::value)
-                .toList();
+        List<String> actualHistory = nodeVisitor.getHistory();
 
-        assertThat(actual).containsExactly(11, 12, 13, 14, 15, 16, 17);
+        assertThat(actualHistory).containsExactly(
+                "START 11",
+                "START 12",
+                "START 13",
+                "START 14",
+                "END 14",
+                "START 15",
+                "START 16",
+                "END 16",
+                "START 17",
+                "END 17",
+                "END 15",
+                "END 13",
+                "END 12",
+                "END 11");
     }
 
     @Test
@@ -101,10 +124,22 @@ class NodeTest {
         NodeListVisitor nodeVisitor = new NodeListVisitor();
         node1.visitDepthFirst(nodeVisitor, Comparator.comparing(Node::value).reversed());
 
-        List<Integer> actual = nodeVisitor.getNodes().stream()
-                .map(Node::value)
-                .toList();
+        List<String> actualHistory = nodeVisitor.getHistory();
 
-        assertThat(actual).containsExactly(11, 12, 13, 15, 17, 16, 14);
+        assertThat(actualHistory).containsExactly(
+                "START 11",
+                "START 12",
+                "START 13",
+                "START 15",
+                "START 17",
+                "END 17",
+                "START 16",
+                "END 16",
+                "END 15",
+                "START 14",
+                "END 14",
+                "END 13",
+                "END 12",
+                "END 11");
     }
 }

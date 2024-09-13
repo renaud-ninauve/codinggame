@@ -69,7 +69,7 @@ public class Player2 {
             }
 
             final List<Integer> targets = bobNet.findNodesLinkedTo(currentNode);
-            targets.sort(Comparator.comparing(shortestPaths::distanceOf));
+            targets.sort(Comparator.comparing(shortestPaths::distanceOf).reversed());
             for (int target : targets) {
                 if (currentPath.contains(target)) {
                     continue;

@@ -15,7 +15,8 @@ public class Node {
     }
 
     public interface Visitor {
-        boolean visit(Node node);
+        boolean start(Node node);
+        void end(Node node);
     }
 
     private Node(int value) {
@@ -52,11 +53,12 @@ public class Node {
     }
 
     public void visitDepthFirst(Visitor visitor, Comparator<Node> visitOrder) {
-        boolean shouldContinue = visitor.visit(this);
+        boolean shouldContinue = visitor.start(this);
         if (shouldContinue) {
             neighbours()
                     .sorted(visitOrder)
                     .forEach(neighbour -> neighbour.visitDepthFirst(visitor, visitOrder));
+            visitor.end(this);
         }
     }
 
