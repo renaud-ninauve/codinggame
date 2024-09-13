@@ -16,42 +16,6 @@ public class ShortestPathVisitorTest {
     private static final int DESTINATION1 = 1_999_999;
     private static final int DESTINATION2 = 2_999_999;
 
-    static class ShortestPathVisitor implements Node.Visitor {
-        private final List<Node> destinations;
-        private Path shortest;
-        private Path currentPath;
-
-        ShortestPathVisitor(List<Node> destinations) {
-            this.destinations = destinations;
-        }
-
-        @Override
-        public boolean start(Node node) {
-            if (currentPath == null) {
-                currentPath = new Path(List.of());
-            }
-            if (currentPath.contains(node)) {
-                return false;
-            }
-            currentPath = currentPath.withNewNode(node);
-            if (destinations.contains(node)) {
-                if (shortest == null || currentPath.compareTo(shortest) < 0) {
-                    shortest = currentPath;
-                }
-            }
-            return shortest == null || currentPath.compareTo(shortest) < 0;
-        }
-
-        @Override
-        public void end(Node node) {
-            if (node != currentPath.node(-1)) {
-                currentPath = currentPath.withoutLast().withoutLast();
-            } else {
-                currentPath = currentPath.withoutLast();
-            }
-        }
-    }
-
     static Stream<Arguments> find_shortest() {
         return Stream.of(Arguments.of(
                         network()
@@ -97,7 +61,7 @@ public class ShortestPathVisitorTest {
                 .toList();
         ShortestPathVisitor visitor = new ShortestPathVisitor(destinationNodes);
         start.visitDepthFirst(visitor, Comparator.comparing(Node::value));
-        List<Integer> actual = visitor.shortest.stream()
+        List<Integer> actual = visitor.getShortest().stream()
                 .map(Node::value)
                 .toList();
         assertThat(actual).containsExactlyElementsOf(expected);
