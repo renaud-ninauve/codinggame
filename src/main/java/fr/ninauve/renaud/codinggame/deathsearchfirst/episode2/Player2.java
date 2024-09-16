@@ -33,7 +33,11 @@ public class Player2 {
         }
         ShortestPathVisitor shortestVisitor = new ShortestPathVisitor(nodesLinkedToSeveralGateways);
         agentNode.visitDepthFirst(shortestVisitor, Comparator.comparing(Node::value, Comparator.naturalOrder()));
-        Node doubleNode = shortestVisitor.getShortest().node(-1);
+        Path shortest = shortestVisitor.getShortest();
+        if (shortest == null) {
+            return Optional.empty();
+        }
+        Node doubleNode = shortest.node(-1);
         return Optional.of(new Link(doubleNode, doubleNode.neighbourGateways().findFirst().orElseThrow()));
     }
 
@@ -42,6 +46,9 @@ public class Player2 {
         ShortestPathVisitor shortestVisitor = new ShortestPathVisitor(gateways);
         agentNode.visitDepthFirst(shortestVisitor, Comparator.comparing(Node::value, Comparator.naturalOrder()));
         Path shortest = shortestVisitor.getShortest();
+        if (shortest == null) {
+            return Optional.empty();
+        }
         return Optional.of(new Link(shortest.node(-2), shortest.node(-1)));
     }
 }

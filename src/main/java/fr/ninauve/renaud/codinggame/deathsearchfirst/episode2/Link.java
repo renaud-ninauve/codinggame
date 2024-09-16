@@ -31,4 +31,12 @@ public class Link {
     public int hashCode() {
         return Objects.hash(a, b);
     }
+
+    @Override
+    public String toString() {
+        return "Link{" +
+                "a=" + a +
+                ", b=" + b +
+                '}';
+    }
 }
