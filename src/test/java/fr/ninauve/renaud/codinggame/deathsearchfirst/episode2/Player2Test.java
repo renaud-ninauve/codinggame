@@ -1,124 +1,54 @@
 package fr.ninauve.renaud.codinggame.deathsearchfirst.episode2;
 
-import fr.ninauve.renaud.codinggame.deathsearchfirst.BobNet;
-import fr.ninauve.renaud.codinggame.deathsearchfirst.Link;
-import fr.ninauve.renaud.codinggame.deathsearchfirst.episode1.Player1;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class Player2Test {
+class Player2Test {
 
     @Test
-    void cut_unique_link_to_gateway() {
-        final BobNet bobnet = BobNet.with()
-                .linkBetween(1, 2)
-                .gatewayAt(2)
+    void cut_direct_link_to_gateways() {
+        Network network = TestData.networkExample()
+                .gateway(5)
                 .build();
 
-        final int virusPosition = 1;
-        final Player2 player2 = new Player2();
+        Node _0 = network.getNode(0);
 
-        final Optional<Link> actual = player2.nextLinkToSever(bobnet, virusPosition);
-        assertThat(actual.get()).isEqualTo(new Link(1, 2));
+        Optional<Link> actual = new Player2().nextLinkToCut(network, _0);
+
+        Node _5 = network.getNode(5);
+        assertThat(actual).hasValue(new Link(_0, _5));
     }
 
     @Test
-    void cut_shortest_link_to_gateway() {
-        final int gateway = 999;
+    void cut_nearest_when_no_node_linked_to_several_gateways() {
+        Network network = TestData.networkExample().build();
+        Node _0 = network.getNode(0);
+        Node _6 = network.getNode(6);
+        Node _7 = network.getNode(7);
+        network.deleteLink(_6, _7);
 
-        final BobNet bobnet = BobNet.with()
-                .linkBetween(1, 2)
-                .linkBetween(2, 21)
-                .linkBetween(21, 22)
-                .linkBetween(22, gateway)
+        Optional<Link> actual = new Player2().nextLinkToCut(network, _0);
 
-                .linkBetween(1, 3)
-                .linkBetween(3, 31)
-                .linkBetween(31, gateway)
-
-                .linkBetween(3, 301)
-
-                .linkBetween(1, 4)
-                .linkBetween(4, 41)
-                .linkBetween(41, 42)
-                .linkBetween(42, gateway)
-
-                .gatewayAt(gateway)
-                .build();
-
-        final int virusPosition = 1;
-        final Player2 player2 = new Player2();
-
-        final Optional<Link> actual = player2.nextLinkToSever(bobnet, virusPosition);
-        assertThat(actual.get()).isEqualTo(new Link(31, gateway));
+        Node _5 = network.getNode(5);
+        Node _9 = network.getNode(9);
+        assertThat(actual).hasValue(new Link(_5, _9));
     }
 
     @Test
-    void cut_shortest_link_to_more_gateways() {
-        final int gateway = 999;
-        final int gateway2 = 9999;
+    void cut_nearest_node_linked_to_2_gateways() {
+        Network network = TestData.networkExample().build();
+        Node _0 = network.getNode(0);
+        Node _6 = network.getNode(6);
+        Node _7 = network.getNode(7);
+        network.deleteLink(_6, _7);
 
-        final BobNet bobnet = BobNet.with()
-                .linkBetween(1, 2)
-                .linkBetween(2, 21)
-                .linkBetween(21, 22)
-                .linkBetween(22, gateway)
+        Optional<Link> actual = new Player2().nextLinkToCut(network, _0);
 
-                .linkBetween(1, 3)
-                .linkBetween(3, 31)
-                .linkBetween(31, gateway)
-
-                .linkBetween(3, 301)
-
-                .linkBetween(1, 4)
-                .linkBetween(4, 41)
-                .linkBetween(41, gateway)
-                .linkBetween(41, gateway2)
-
-                .gatewayAt(gateway)
-                .gatewayAt(gateway2)
-                .build();
-
-        final int virusPosition = 1;
-        final Player2 player2 = new Player2();
-
-        final Optional<Link> actual = player2.nextLinkToSever(bobnet, virusPosition);
-        assertThat(actual.get()).isEqualTo(new Link(41, gateway));
-    }
-
-    @Test
-    void cut_shortest_link_to_more_gateways2() {
-        final int gateway = 999;
-        final int gateway2 = 9999;
-
-        final BobNet bobnet = BobNet.with()
-                .linkBetween(1, 2)
-                .linkBetween(2, 21)
-                .linkBetween(21, 22)
-                .linkBetween(22, gateway)
-
-                .linkBetween(1, 3)
-                .linkBetween(3, 31)
-                .linkBetween(31, gateway)
-                .linkBetween(31, gateway2)
-
-                .linkBetween(3, 301)
-
-                .linkBetween(1, 4)
-                .linkBetween(4, 41)
-                .linkBetween(41, gateway)
-
-                .gatewayAt(gateway)
-                .gatewayAt(gateway2)
-                .build();
-
-        final int virusPosition = 1;
-        final Player2 player2 = new Player2();
-
-        final Optional<Link> actual = player2.nextLinkToSever(bobnet, virusPosition);
-        assertThat(actual.get()).isEqualTo(new Link(31, gateway));
+        Node _5 = network.getNode(5);
+        Node _9 = network.getNode(9);
+        assertThat(actual).hasValue(new Link(_5, _9));
     }
 }

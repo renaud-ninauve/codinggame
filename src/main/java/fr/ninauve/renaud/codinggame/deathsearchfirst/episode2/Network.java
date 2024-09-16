@@ -2,6 +2,7 @@ package fr.ninauve.renaud.codinggame.deathsearchfirst.episode2;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static fr.ninauve.renaud.codinggame.deathsearchfirst.episode2.Node.node;
 
@@ -49,6 +50,10 @@ public class Network {
 
     public Node getNode(int value) {
         return nodes.get(value);
+    }
+
+    public Stream<Node> findGateways() {
+        return nodes.values().stream().filter(Node::isGateway);
     }
 
     public boolean isEmpty() {
