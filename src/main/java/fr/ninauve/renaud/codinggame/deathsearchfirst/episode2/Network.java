@@ -1,8 +1,9 @@
 package fr.ninauve.renaud.codinggame.deathsearchfirst.episode2;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import static fr.ninauve.renaud.codinggame.deathsearchfirst.episode2.Node.node;
 
@@ -52,8 +53,15 @@ public class Network {
         return nodes.get(value);
     }
 
-    public Stream<Node> findGateways() {
-        return nodes.values().stream().filter(Node::isGateway);
+    public List<Node> findGateways() {
+        return nodes.values().stream().filter(Node::isGateway).toList();
+    }
+
+    public List<Node> findNodesLinkedToSeveralGateways() {
+        return nodes.values().stream()
+                .filter(node -> !node.isGateway())
+                .filter(node -> node.neighbourGateways().collect(Collectors.counting()) > 1)
+                .toList();
     }
 
     public boolean isEmpty() {

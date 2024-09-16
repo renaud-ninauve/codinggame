@@ -91,4 +91,15 @@ class NetworkTest {
                 .hasSize(1)
                 .anyMatch(n -> n == node1);
     }
+
+    @Test
+    void find_double_nodes() {
+        Network network = TestData.networkExample().build();
+
+        List<Node> actual = network.findNodesLinkedToSeveralGateways();
+
+        Node _4 = network.getNode(4);
+        Node _7 = network.getNode(7);
+        assertThat(actual).containsExactlyInAnyOrder(_4, _7);
+    }
 }

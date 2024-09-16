@@ -11,6 +11,10 @@ public class Player2 {
         if (directGatewayLink.isPresent()) {
             return directGatewayLink;
         }
+        Optional<Link> nearestDoubleGatewayLink = nearestDoubleGatewayLink(network, agentNode);
+        if (nearestDoubleGatewayLink.isPresent()) {
+            return nearestDoubleGatewayLink;
+        }
         return nearestGatewayLink(network, agentNode);
     }
 
@@ -22,8 +26,19 @@ public class Player2 {
         return Optional.empty();
     }
 
+    private Optional<Link> nearestDoubleGatewayLink(Network network, Node agentNode) {
+        List<Node> nodesLinkedToSeveralGateways = network.findNodesLinkedToSeveralGateways();
+        if (nodesLinkedToSeveralGateways.isEmpty()) {
+            return Optional.empty();
+        }
+        ShortestPathVisitor shortestVisitor = new ShortestPathVisitor(nodesLinkedToSeveralGateways);
+        agentNode.visitDepthFirst(shortestVisitor, Comparator.comparing(Node::value, Comparator.naturalOrder()));
+        Node doubleNode = shortestVisitor.getShortest().node(-1);
+        return Optional.of(new Link(doubleNode, doubleNode.neighbourGateways().findFirst().orElseThrow()));
+    }
+
     private Optional<Link> nearestGatewayLink(Network network, Node agentNode) {
-        List<Node> gateways = network.findGateways().toList();
+        List<Node> gateways = network.findGateways();
         ShortestPathVisitor shortestVisitor = new ShortestPathVisitor(gateways);
         agentNode.visitDepthFirst(shortestVisitor, Comparator.comparing(Node::value, Comparator.naturalOrder()));
         Path shortest = shortestVisitor.getShortest();
