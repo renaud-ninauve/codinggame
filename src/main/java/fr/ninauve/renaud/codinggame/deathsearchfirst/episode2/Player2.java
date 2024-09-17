@@ -31,24 +31,20 @@ public class Player2 {
         if (nodesLinkedToSeveralGateways.isEmpty()) {
             return Optional.empty();
         }
-        ShortestPathVisitor shortestVisitor = new ShortestPathVisitor(nodesLinkedToSeveralGateways);
-        agentNode.visitDepthFirst(shortestVisitor, Comparator.comparing(Node::value, Comparator.naturalOrder()));
-        Path shortest = shortestVisitor.getShortest();
-        if (shortest == null) {
+        Optional<Path> shortestPath = ShortestPath.find(agentNode, nodesLinkedToSeveralGateways);
+        if (shortestPath.isEmpty()) {
             return Optional.empty();
         }
-        Node doubleNode = shortest.node(-1);
+        Node doubleNode = shortestPath.get().node(-1);
         return Optional.of(new Link(doubleNode, doubleNode.neighbourGateways().findFirst().orElseThrow()));
     }
 
     private Optional<Link> nearestGatewayLink(Network network, Node agentNode) {
         List<Node> gateways = network.findGateways();
-        ShortestPathVisitor shortestVisitor = new ShortestPathVisitor(gateways);
-        agentNode.visitDepthFirst(shortestVisitor, Comparator.comparing(Node::value, Comparator.naturalOrder()));
-        Path shortest = shortestVisitor.getShortest();
-        if (shortest == null) {
+        Optional<Path> shortestPath = ShortestPath.find(agentNode, gateways);
+        if (shortestPath.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(new Link(shortest.node(-2), shortest.node(-1)));
+        return Optional.of(new Link(shortestPath.get().node(-2), shortestPath.get().node(-1)));
     }
 }
