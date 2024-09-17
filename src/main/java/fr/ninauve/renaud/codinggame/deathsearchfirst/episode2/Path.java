@@ -45,8 +45,14 @@ public class Path implements Comparable<Path> {
 
     @Override
     public int compareTo(Path other) {
-        return Comparator.comparing(Path::distance)
+        return Comparator.comparing(Path::weight)
                 .compare(this, other);
+    }
+
+    private int weight() {
+        return value.stream()
+                .mapToInt(node -> node.neighbourGateways().count() > 0 ? 0 : 1)
+                .sum();
     }
 
     @Override
