@@ -4,14 +4,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static fr.ninauve.renaud.codinggame.deathsearchfirst.episode2.Network.network;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ShortestPathVisitorTest {
+public class ShortestPathTest {
     private static final int START = 1_000_000;
     private static final int DESTINATION1 = 1_999_999;
     private static final int DESTINATION2 = 2_999_999;
@@ -59,11 +59,8 @@ public class ShortestPathVisitorTest {
         List<Node> destinationNodes = destinations.stream()
                 .map(network::getNode)
                 .toList();
-        ShortestPathVisitor visitor = new ShortestPathVisitor(destinationNodes);
-        start.visitDepthFirst(visitor, Comparator.comparing(Node::value));
-        List<Integer> actual = visitor.getShortest().stream()
-                .map(Node::value)
-                .toList();
-        assertThat(actual).containsExactlyElementsOf(expected);
+        Optional<Path> actual = ShortestPath.find(start, destinationNodes);
+        List<Integer> actualNodes = actual.get().stream().map(Node::value).toList();
+        assertThat(actualNodes).containsExactlyElementsOf(expected);
     }
 }
